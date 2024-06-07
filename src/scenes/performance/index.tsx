@@ -1,17 +1,31 @@
 import React from "react";
-import { Box, useTheme } from "@mui/material";
+import { Box, useTheme, Theme } from "@mui/material";
 import { useGetUserPerformanceQuery } from "state/api";
 import { useSelector } from "react-redux";
-import { DataGrid } from "@mui/x-data-grid";
+import { DataGrid, GridColDef, GridColumnMenuProps } from "@mui/x-data-grid";
 import Header from "components/Header";
 import CustomColumnMenu from "components/DataGridCustomColumnMenu";
 
-const Performance = () => {
-  const theme = useTheme();
-  const userId = useSelector((state) => state.global.userId);
+interface RootState {
+  global: {
+    userId: string;
+  };
+}
+
+interface UserPerformanceData {
+  _id: string;
+  userId: string;
+  createdAt: string;
+  products: { length: number };
+  cost: number;
+}
+
+const Performance: React.FC = () => {
+  const theme: Theme = useTheme();
+  const userId = useSelector((state: RootState) => state.global.userId);
   const { data, isLoading } = useGetUserPerformanceQuery(userId);
 
-  const columns = [
+  const columns: GridColDef[] = [
     {
       field: "_id",
       headerName: "ID",
@@ -59,7 +73,7 @@ const Performance = () => {
             borderBottom: "none",
           },
           "& .MuiDataGrid-columnHeaders": {
-            backgroundColor: theme.palette.background.alt,
+            backgroundColor: theme.palette.background.default,
             color: theme.palette.secondary[100],
             borderBottom: "none",
           },
@@ -67,7 +81,7 @@ const Performance = () => {
             backgroundColor: theme.palette.primary.light,
           },
           "& .MuiDataGrid-footerContainer": {
-            backgroundColor: theme.palette.background.alt,
+            backgroundColor: theme.palette.background.default,
             color: theme.palette.secondary[100],
             borderTop: "none",
           },
@@ -81,8 +95,8 @@ const Performance = () => {
           getRowId={(row) => row._id}
           rows={(data && data.sales) || []}
           columns={columns}
-          components={{
-            ColumnMenu: CustomColumnMenu,
+          slots={{
+            columnMenu: CustomColumnMenu,
           }}
         />
       </Box>

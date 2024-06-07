@@ -5,9 +5,9 @@ import Header from "components/Header";
 import { ResponsiveChoropleth } from "@nivo/geo";
 import { geoData } from "state/geoData";
 
-const Geography = () => {
+const Geography: React.FC = () => {
   const theme = useTheme();
-  const { data } = useGetGeographyQuery();
+  const { data } = useGetGeographyQuery(undefined); // Provide undefined if no argument is needed
 
   return (
     <Box m="1.5rem 2.5rem">
@@ -83,7 +83,7 @@ const Geography = () => {
                   {
                     on: "hover",
                     style: {
-                      itemTextColor: theme.palette.background.alt,
+                      itemTextColor: theme.palette.background.default, // Use an existing property
                       itemOpacity: 1,
                     },
                   },

@@ -1,12 +1,20 @@
 import React, { useState } from "react";
-import { Box, useTheme } from "@mui/material";
-import { DataGrid } from "@mui/x-data-grid";
+import { Box, useTheme, Theme } from "@mui/material";
+import { DataGrid, GridColDef, GridToolbarProps } from "@mui/x-data-grid";
 import { useGetTransactionsQuery } from "state/api";
 import Header from "components/Header";
-import DataGridCustomToolbar from "components/DataGridCustomToolbar";
+import DataGridCustomToolbar, { DataGridCustomToolbarProps } from "components/DataGridCustomToolbar";
 
-const Transactions = () => {
-  const theme = useTheme();
+interface Transaction {
+  _id: string;
+  userId: string;
+  createdAt: string;
+  products: any[];
+  cost: number;
+}
+
+const Transactions: React.FC = () => {
+  const theme: Theme = useTheme();
 
   // values to be sent to the backend
   const [sort, setSort] = useState({});
@@ -24,7 +32,7 @@ const Transactions = () => {
     search,
   });
 
-  const columns = [
+  const columns: GridColDef[] = [
     {
       field: "_id",
       headerName: "ID",
@@ -37,7 +45,7 @@ const Transactions = () => {
     },
     {
       field: "createdAt",
-      headerName: "CreatedAt",
+      headerName: "Created At",
       flex: 1,
     },
     {
@@ -72,7 +80,7 @@ const Transactions = () => {
             borderBottom: "none",
           },
           "& .MuiDataGrid-columnHeaders": {
-            backgroundColor: theme.palette.background.alt,
+            backgroundColor: theme.palette.background.default,
             color: theme.palette.secondary[100],
             borderBottom: "none",
           },
@@ -80,7 +88,7 @@ const Transactions = () => {
             backgroundColor: theme.palette.primary.light,
           },
           "& .MuiDataGrid-footerContainer": {
-            backgroundColor: theme.palette.background.alt,
+            backgroundColor: theme.palette.background.default,
             color: theme.palette.secondary[100],
             borderTop: "none",
           },
@@ -101,9 +109,11 @@ const Transactions = () => {
           onPaginationModelChange={setPaginationModel}
           sortingMode="server"
           onSortModelChange={(newSortModel) => setSort(newSortModel)}
-          slots={{ toolbar: DataGridCustomToolbar }}
+          slots={{
+            toolbar: DataGridCustomToolbar as React.JSXElementConstructor<GridToolbarProps>,
+          }}
           slotProps={{
-            toolbar: { searchInput, setSearchInput, setSearch },
+            toolbar: { searchInput, setSearchInput, setSearch } as DataGridCustomToolbarProps,
           }}
         />
       </Box>

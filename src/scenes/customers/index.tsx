@@ -1,15 +1,26 @@
-import React from "react";
-import { Box, useTheme } from "@mui/material";
-import { useGetAdminsQuery } from "state/api";
-import { DataGrid } from "@mui/x-data-grid";
-import Header from "components/Header";
-import CustomColumnMenu from "components/DataGridCustomColumnMenu";
+import React from 'react';
+import { Box, useTheme } from '@mui/material';
+import { useGetCustomersQuery } from 'state/api';
+import Header from 'components/Header';
+import { DataGrid, GridColDef } from '@mui/x-data-grid';
 
-const Admin = () => {
+// Define the shape of customer data
+interface Customer {
+  _id: string;
+  name: string;
+  email: string;
+  phoneNumber: string;
+  country: string;
+  occupation: string;
+  role: string;
+}
+
+const Customers: React.FC = () => {
   const theme = useTheme();
-  const { data, isLoading } = useGetAdminsQuery();
+  const { data, isLoading } = useGetCustomersQuery(undefined);
+  console.log("data", data);
 
-  const columns = [
+  const columns: GridColDef[] = [
     {
       field: "_id",
       headerName: "ID",
@@ -30,7 +41,7 @@ const Admin = () => {
       headerName: "Phone Number",
       flex: 0.5,
       renderCell: (params) => {
-        return params.value.replace(/^(\d{3})(\d{3})(\d{4})/, "($1)$2-$3");
+        return (params.value as string).replace(/^(\d{3})(\d{3})(\d{4})/, "($1)$2-$3");
       },
     },
     {
@@ -52,7 +63,7 @@ const Admin = () => {
 
   return (
     <Box m="1.5rem 2.5rem">
-      <Header title="ADMINS" subtitle="Managing admins and list of admins" />
+      <Header title="CUSTOMERS" subtitle="List of Customers" />
       <Box
         mt="40px"
         height="75vh"
@@ -64,7 +75,7 @@ const Admin = () => {
             borderBottom: "none",
           },
           "& .MuiDataGrid-columnHeaders": {
-            backgroundColor: theme.palette.background.alt,
+            backgroundColor: theme.palette.background.default,
             color: theme.palette.secondary[100],
             borderBottom: "none",
           },
@@ -72,7 +83,7 @@ const Admin = () => {
             backgroundColor: theme.palette.primary.light,
           },
           "& .MuiDataGrid-footerContainer": {
-            backgroundColor: theme.palette.background.alt,
+            backgroundColor: theme.palette.background.default,
             color: theme.palette.secondary[100],
             borderTop: "none",
           },
@@ -86,13 +97,10 @@ const Admin = () => {
           getRowId={(row) => row._id}
           rows={data || []}
           columns={columns}
-          components={{
-            ColumnMenu: CustomColumnMenu,
-          }}
         />
       </Box>
     </Box>
   );
 };
 
-export default Admin;
+export default Customers;

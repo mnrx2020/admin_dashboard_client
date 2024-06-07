@@ -15,18 +15,18 @@ import {
   useTheme,
   useMediaQuery,
 } from "@mui/material";
-import { DataGrid } from "@mui/x-data-grid";
+import { DataGrid, GridColDef } from "@mui/x-data-grid";
 import BreakdownChart from "components/BreakdownChart";
 import OverviewChart from "components/OverviewChart";
 import { useGetDashboardQuery } from "state/api";
 import StatBox from "components/StatBox";
 
-const Dashboard = () => {
+const Dashboard: React.FC = () => {
   const theme = useTheme();
   const isNonMediumScreens = useMediaQuery("(min-width: 1200px)");
-  const { data, isLoading } = useGetDashboardQuery();
+  const { data, isLoading } = useGetDashboardQuery(undefined);
 
-  const columns = [
+  const columns: GridColDef[] = [
     {
       field: "_id",
       headerName: "ID",
@@ -39,7 +39,7 @@ const Dashboard = () => {
     },
     {
       field: "createdAt",
-      headerName: "CreatedAt",
+      headerName: "Created At",
       flex: 1,
     },
     {
@@ -47,7 +47,7 @@ const Dashboard = () => {
       headerName: "# of Products",
       flex: 0.5,
       sortable: false,
-      renderCell: (params) => params.value.length,
+      renderCell: (params) => (params.value as Array<any>).length,
     },
     {
       field: "cost",
@@ -66,7 +66,7 @@ const Dashboard = () => {
           <Button
             sx={{
               backgroundColor: theme.palette.secondary.light,
-              color: theme.palette.background.alt,
+              color: theme.palette.background.paper,
               fontSize: "14px",
               fontWeight: "bold",
               padding: "10px 20px",
@@ -91,7 +91,7 @@ const Dashboard = () => {
         {/* ROW 1 */}
         <StatBox
           title="Total Customers"
-          value={data && data.totalCustomers}
+          value={data?.totalCustomers}
           increase="+14%"
           description="Since last month"
           icon={
@@ -102,7 +102,7 @@ const Dashboard = () => {
         />
         <StatBox
           title="Sales Today"
-          value={data && data.todayStats.totalSales}
+          value={data?.todayStats.totalSales}
           increase="+21%"
           description="Since last month"
           icon={
@@ -114,15 +114,17 @@ const Dashboard = () => {
         <Box
           gridColumn="span 8"
           gridRow="span 2"
-          backgroundColor={theme.palette.background.alt}
-          p="1rem"
-          borderRadius="0.55rem"
+          sx={{
+            backgroundColor: theme.palette.background.paper,
+            p: "1rem",
+            borderRadius: "0.55rem",
+          }}
         >
           <OverviewChart view="sales" isDashboard={true} />
         </Box>
         <StatBox
           title="Monthly Sales"
-          value={data && data.thisMonthStats.totalSales}
+          value={data?.thisMonthStats.totalSales}
           increase="+5%"
           description="Since last month"
           icon={
@@ -133,7 +135,7 @@ const Dashboard = () => {
         />
         <StatBox
           title="Yearly Sales"
-          value={data && data.yearlySalesTotal}
+          value={data?.yearlySalesTotal}
           increase="+43%"
           description="Since last month"
           icon={
@@ -156,15 +158,15 @@ const Dashboard = () => {
               borderBottom: "none",
             },
             "& .MuiDataGrid-columnHeaders": {
-              backgroundColor: theme.palette.background.alt,
+              backgroundColor: theme.palette.background.paper,
               color: theme.palette.secondary[100],
               borderBottom: "none",
             },
             "& .MuiDataGrid-virtualScroller": {
-              backgroundColor: theme.palette.background.alt,
+              backgroundColor: theme.palette.background.paper,
             },
             "& .MuiDataGrid-footerContainer": {
-              backgroundColor: theme.palette.background.alt,
+              backgroundColor: theme.palette.background.paper,
               color: theme.palette.secondary[100],
               borderTop: "none",
             },
@@ -183,9 +185,11 @@ const Dashboard = () => {
         <Box
           gridColumn="span 4"
           gridRow="span 3"
-          backgroundColor={theme.palette.background.alt}
-          p="1.5rem"
-          borderRadius="0.55rem"
+          sx={{
+            backgroundColor: theme.palette.background.paper,
+            p: "1.5rem",
+            borderRadius: "0.55rem",
+          }}
         >
           <Typography variant="h6" sx={{ color: theme.palette.secondary[100] }}>
             Sales By Category

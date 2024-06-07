@@ -2,25 +2,31 @@ import React from "react";
 import { ResponsivePie } from "@nivo/pie";
 import { Box, Typography, useTheme } from "@mui/material";
 import { useGetSalesQuery } from "state/api";
+import { PaletteColor } from '@mui/material/styles/createPalette';
 
-const BreakdownChart = ({ isDashboard = false }) => {
-  const { data, isLoading } = useGetSalesQuery();
+interface BreakdownChartProps {
+  isDashboard?: boolean;
+}
+
+const BreakdownChart: React.FC<BreakdownChartProps> = ({ isDashboard = false }) => {
+  const { data, isLoading } = useGetSalesQuery(undefined, { skip: false }); // Ensure arguments are passed if required
   const theme = useTheme();
 
-  if (!data || isLoading) return "Loading...";
+  if (!data || isLoading) return <div>Loading...</div>;
 
   const colors = [
-    theme.palette.secondary[500],
-    theme.palette.secondary[300],
-    theme.palette.secondary[300],
-    theme.palette.secondary[500],
+    theme.palette.secondary.main,
+    theme.palette.secondary.light,
+    theme.palette.secondary.light,
+    theme.palette.secondary.main,
   ];
+
   const formattedData = Object.entries(data.salesByCategory).map(
     ([category, sales], i) => ({
       id: category,
       label: category,
-      value: sales,
-      color: colors[i],
+      value: sales as number,
+      color: colors[i % colors.length], // Use modulo to avoid index out of bounds
     })
   );
 
@@ -38,27 +44,27 @@ const BreakdownChart = ({ isDashboard = false }) => {
           axis: {
             domain: {
               line: {
-                stroke: theme.palette.secondary[200],
+                stroke: theme.palette.secondary.light,
               },
             },
             legend: {
               text: {
-                fill: theme.palette.secondary[200],
+                fill: theme.palette.secondary.light,
               },
             },
             ticks: {
               line: {
-                stroke: theme.palette.secondary[200],
+                stroke: theme.palette.secondary.light,
                 strokeWidth: 1,
               },
               text: {
-                fill: theme.palette.secondary[200],
+                fill: theme.palette.secondary.light,
               },
             },
           },
           legends: {
             text: {
-              fill: theme.palette.secondary[200],
+              fill: theme.palette.secondary.light,
             },
           },
           tooltip: {
@@ -82,7 +88,7 @@ const BreakdownChart = ({ isDashboard = false }) => {
           modifiers: [["darker", 0.2]],
         }}
         enableArcLinkLabels={!isDashboard}
-        arcLinkLabelsTextColor={theme.palette.secondary[200]}
+        arcLinkLabelsTextColor={theme.palette.secondary.light}
         arcLinkLabelsThickness={2}
         arcLinkLabelsColor={{ from: "color" }}
         arcLabelsSkipAngle={10}
@@ -109,7 +115,7 @@ const BreakdownChart = ({ isDashboard = false }) => {
               {
                 on: "hover",
                 style: {
-                  itemTextColor: theme.palette.primary[500],
+                  itemTextColor: theme.palette.primary.main,
                 },
               },
             ],
@@ -117,13 +123,14 @@ const BreakdownChart = ({ isDashboard = false }) => {
         ]}
       />
       <Box
+        component="div"
         position="absolute"
         top="50%"
         left="50%"
-        color={theme.palette.secondary[400]}
+        color={theme.palette.secondary.light}
         textAlign="center"
-        pointerEvents="none"
         sx={{
+          pointerEvents: "none",
           transform: isDashboard
             ? "translate(-75%, -170%)"
             : "translate(-50%, -100%)",

@@ -1,47 +1,81 @@
-import React, { useMemo } from "react";
+import React, { useMemo, useState } from "react";
 import { Box, useTheme } from "@mui/material";
 import Header from "components/Header";
-import { ResponsiveLine } from "@nivo/line";
+import { ResponsiveLine, Serie } from "@nivo/line";
 import { useGetSalesQuery } from "state/api";
+import DatePicker from "react-datepicker";
+import "react-datepicker/dist/react-datepicker.css";
 
-const Monthly = () => {
-  const { data } = useGetSalesQuery();
+interface DailyData {
+  date: string;
+  totalSales: number;
+  totalUnits: number;
+}
+
+interface SalesData {
+  dailyData: DailyData[];
+}
+
+const Daily: React.FC = () => {
+  const [startDate, setStartDate] = useState<Date | null>(new Date("2021-02-01"));
+  const [endDate, setEndDate] = useState<Date | null>(new Date("2021-03-01"));
+  const { data } = useGetSalesQuery(undefined);
   const theme = useTheme();
 
-  const [formattedData] = useMemo(() => {
+  const formattedData: Serie[] = useMemo(() => {
     if (!data) return [];
 
-    const { monthlyData } = data;
-    const totalSalesLine = {
+    const { dailyData } = data;
+    const totalSalesLine: Serie = {
       id: "totalSales",
       color: theme.palette.secondary.main,
       data: [],
     };
-    const totalUnitsLine = {
+    const totalUnitsLine: Serie = {
       id: "totalUnits",
       color: theme.palette.secondary[600],
       data: [],
     };
 
-    Object.values(monthlyData).forEach(({ month, totalSales, totalUnits }) => {
-      totalSalesLine.data = [
-        ...totalSalesLine.data,
-        { x: month, y: totalSales },
-      ];
-      totalUnitsLine.data = [
-        ...totalUnitsLine.data,
-        { x: month, y: totalUnits },
-      ];
+    dailyData.forEach(({ date, totalSales, totalUnits }: DailyData) => {
+      const dateFormatted = new Date(date);
+      if (startDate && endDate && dateFormatted >= startDate && dateFormatted <= endDate) {
+        const splitDate = date.substring(date.indexOf("-") + 1);
+
+        (totalSalesLine.data as { x: string, y: number }[]).push({ x: splitDate, y: totalSales });
+        (totalUnitsLine.data as { x: string, y: number }[]).push({ x: splitDate, y: totalUnits });
+      }
     });
 
-    const formattedData = [totalSalesLine, totalUnitsLine];
-    return [formattedData];
-  }, [data]); // eslint-disable-line react-hooks/exhaustive-deps
+    return [totalSalesLine, totalUnitsLine];
+  }, [data, startDate, endDate, theme]);
 
   return (
     <Box m="1.5rem 2.5rem">
-      <Header title="MONTHLY SALES" subtitle="Chart of monthlysales" />
+      <Header title="DAILY SALES" subtitle="Chart of daily sales" />
       <Box height="75vh">
+        <Box display="flex" justifyContent="flex-end">
+          <Box>
+            <DatePicker
+              selected={startDate}
+              onChange={(date) => setStartDate(date as Date)}
+              selectsStart
+              startDate={startDate}
+              endDate={endDate}
+            />
+          </Box>
+          <Box>
+            <DatePicker
+              selected={endDate}
+              onChange={(date) => setEndDate(date as Date)}
+              selectsEnd
+              startDate={startDate}
+              endDate={endDate}
+              minDate={startDate}
+            />
+          </Box>
+        </Box>
+
         {data ? (
           <ResponsiveLine
             data={formattedData}
@@ -89,11 +123,10 @@ const Monthly = () => {
               reverse: false,
             }}
             yFormat=" >-.2f"
-            // curve="catmullRom"
+            curve="catmullRom"
             axisTop={null}
             axisRight={null}
             axisBottom={{
-              orient: "bottom",
               tickSize: 5,
               tickPadding: 5,
               tickRotation: 90,
@@ -102,7 +135,6 @@ const Monthly = () => {
               legendPosition: "middle",
             }}
             axisLeft={{
-              orient: "left",
               tickSize: 5,
               tickPadding: 5,
               tickRotation: 0,
@@ -153,4 +185,4 @@ const Monthly = () => {
   );
 };
 
-export default Monthly;
+export default Daily;

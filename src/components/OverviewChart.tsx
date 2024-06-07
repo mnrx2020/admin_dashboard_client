@@ -1,54 +1,70 @@
 import React, { useMemo } from "react";
-import { ResponsiveLine } from "@nivo/line";
+import { ResponsiveLine, Serie, Datum } from "@nivo/line";
 import { useTheme } from "@mui/material";
-import { useGetSalesQuery } from "state/api";
+import { useGetSalesQuery } from "../state/api";
 
-const OverviewChart = ({ isDashboard = false, view }) => {
+interface OverviewChartProps {
+  isDashboard?: boolean;
+  view: "sales" | "units";
+}
+
+interface MonthlyData {
+  month: string;
+  totalSales: number;
+  totalUnits: number;
+}
+
+interface SalesData {
+  monthlyData: MonthlyData[];
+}
+
+const OverviewChart: React.FC<OverviewChartProps> = ({ isDashboard = false, view }) => {
   const theme = useTheme();
-  const { data, isLoading } = useGetSalesQuery();
+  const { data, isLoading } = useGetSalesQuery(undefined, { skip: false });
 
-  const [totalSalesLine, totalUnitsLine] = useMemo(() => {
-    if (!data) return [];
+  const [totalSalesLine, totalUnitsLine]: [Serie, Serie] = useMemo(() => {
+    if (!data) {
+      return [
+        { id: "totalSales", color: theme.palette.secondary.main, data: [] as Datum[] },
+        { id: "totalUnits", color: theme.palette.secondary[600], data: [] as Datum[] },
+      ];
+    }
 
-    const { monthlyData } = data;
-    const totalSalesLine = {
+    const { monthlyData } = data as SalesData;
+
+    const totalSalesLine: Serie = {
       id: "totalSales",
       color: theme.palette.secondary.main,
-      data: [],
-    };
-    const totalUnitsLine = {
-      id: "totalUnits",
-      color: theme.palette.secondary[600],
-      data: [],
+      data: [] as Datum[],
     };
 
-    Object.values(monthlyData).reduce(
+    const totalUnitsLine: Serie = {
+      id: "totalUnits",
+      color: theme.palette.secondary[600],
+      data: [] as Datum[],
+    };
+
+    monthlyData.reduce(
       (acc, { month, totalSales, totalUnits }) => {
         const curSales = acc.sales + totalSales;
         const curUnits = acc.units + totalUnits;
 
-        totalSalesLine.data = [
-          ...totalSalesLine.data,
-          { x: month, y: curSales },
-        ];
-        totalUnitsLine.data = [
-          ...totalUnitsLine.data,
-          { x: month, y: curUnits },
-        ];
+        totalSalesLine.data = [...totalSalesLine.data, { x: month, y: curSales }];
+        totalUnitsLine.data = [...totalUnitsLine.data, { x: month, y: curUnits }];
 
         return { sales: curSales, units: curUnits };
       },
       { sales: 0, units: 0 }
     );
 
-    return [[totalSalesLine], [totalUnitsLine]];
-  }, [data]); // eslint-disable-line react-hooks/exhaustive-deps
+    return [totalSalesLine, totalUnitsLine];
+  }, [data, theme.palette.secondary.main, theme.palette.secondary[600]]);
 
-  if (!data || isLoading) return "Loading...";
+  if (!data || isLoading) return <div>Loading...</div>;
 
   return (
     <ResponsiveLine
-      data={view === "sales" ? totalSalesLine : totalUnitsLine}
+      data={view === "sales" ? [totalSalesLine] : [totalUnitsLine]}
       theme={{
         axis: {
           domain: {
@@ -101,7 +117,6 @@ const OverviewChart = ({ isDashboard = false, view }) => {
           if (isDashboard) return v.slice(0, 3);
           return v;
         },
-        orient: "bottom",
         tickSize: 5,
         tickPadding: 5,
         tickRotation: 0,
@@ -110,14 +125,10 @@ const OverviewChart = ({ isDashboard = false, view }) => {
         legendPosition: "middle",
       }}
       axisLeft={{
-        orient: "left",
-        tickValues: 5,
         tickSize: 5,
         tickPadding: 5,
         tickRotation: 0,
-        legend: isDashboard
-          ? ""
-          : `Total ${view === "sales" ? "Revenue" : "Units"} for Year`,
+        legend: isDashboard ? "" : `Total ${view === "sales" ? "Revenue" : "Units"} for Year`,
         legendOffset: -60,
         legendPosition: "middle",
       }}

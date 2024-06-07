@@ -9,9 +9,16 @@ import {
 } from "@mui/x-data-grid";
 import FlexBetween from "./FlexBetween";
 
-const DataGridCustomToolbar = ({ searchInput, setSearchInput, setSearch }) => {
-    console.log("DataGridCustomToolbar rendered");
+export interface DataGridCustomToolbarProps {
+  searchInput: string;
+  setSearchInput: React.Dispatch<React.SetStateAction<string>>;
+  setSearch: React.Dispatch<React.SetStateAction<string>>;
+}
+
+const DataGridCustomToolbar: React.FC<DataGridCustomToolbarProps> = ({ searchInput, setSearchInput, setSearch }) => {
+  console.log("DataGridCustomToolbar rendered");
   console.log("Props:", { searchInput, setSearchInput, setSearch });
+
   return (
     <GridToolbarContainer>
       <FlexBetween width="100%">
