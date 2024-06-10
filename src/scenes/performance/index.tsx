@@ -1,8 +1,8 @@
 import React from "react";
-import { Box, useTheme, Theme } from "@mui/material";
+import { Box, useTheme, Theme, Typography } from "@mui/material";
 import { useGetUserPerformanceQuery } from "state/api";
 import { useSelector } from "react-redux";
-import { DataGrid, GridColDef, GridColumnMenuProps } from "@mui/x-data-grid";
+import { DataGrid, GridColDef } from "@mui/x-data-grid";
 import Header from "components/Header";
 import CustomColumnMenu from "components/DataGridCustomColumnMenu";
 
@@ -55,6 +55,14 @@ const Performance: React.FC = () => {
       renderCell: (params) => `$${Number(params.value).toFixed(2)}`,
     },
   ];
+
+  if (isLoading) {
+    return (
+      <Box m="1.5rem 2.5rem">
+        <Typography>Loading...</Typography>
+      </Box>
+    );
+  }
 
   return (
     <Box m="1.5rem 2.5rem">

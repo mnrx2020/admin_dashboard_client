@@ -88,7 +88,9 @@ const Products: React.FC = () => {
   return (
     <Box m="1.5rem 2.5rem">
       <Header title="PRODUCTS" subtitle="See your list of products." />
-      {data || !isLoading ? (
+      {isLoading ? (
+        <>Loading...</>
+      ) : data ? (
         <Box
           mt="20px"
           display="grid"
@@ -115,7 +117,7 @@ const Products: React.FC = () => {
           ))}
         </Box>
       ) : (
-        <>Loading...</>
+        <>No data available</>
       )}
     </Box>
   );
